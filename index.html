@@ -1,0 +1,124 @@
+<h1 style="text-align: center;">To do List </h1>
+<table style="margin:auto" cellspacing="4">
+    <input type="hidden" id="editid">
+    <tr>
+
+        <td><input type="text" id="name" placeholder="Add item"></td>
+        <td><input onclick="save()" type="button" value="&plus;" id="addbtn">
+            <input onclick="save()" type="button" value="Edit" id="editbtn">
+        </td>
+    </tr>
+</table>
+<br>
+<br>
+<table style="margin:auto" cellspacing="4" cellpadding="8">
+
+    <tbody id="record"></tbody>
+
+</table>
+<button onclick="remove()" id="removeBtn">Remove</button>
+<script type="text/javascript">
+
+    let data = [];
+    const viewdata = () => {
+        document.getElementById('editbtn').style.display = "none";
+        document.getElementById('addbtn').style.display = "block";
+
+        let record = JSON.parse(localStorage.getItem('user'));
+        let val = (record == null) ? [] : record;
+        let tbl = "";
+        val.map((v) => {
+            const { userid, name, } = v;
+            tbl +=
+                `
+                <tr>
+                    <td>${name}</td>
+                    <td>
+                        <button onclick="deleteData(${userid})">Delete</button>
+                        <button onclick="editData(${userid})">Edit</button>
+                    </td>
+                </tr>
+             `
+        })
+        document.getElementById('record').innerHTML = tbl;
+    }
+    viewdata();
+
+    const save = () => {
+
+        let userid = document.getElementById('editid').value;
+        let name = document.getElementById('name').value;
+
+        //  form validation
+        if (userid) {
+            let val = JSON.parse(localStorage.getItem('user'));
+            let updatedData = val.filter((v) => {
+                if (v.userid == userid) {
+                    v.name = name;
+
+                }
+                return v;
+            });
+            localStorage.setItem('user', JSON.stringify(updatedData));
+            alert("User successfully updated...");
+            document.getElementById('editid').value = "";
+            viewdata();
+        }
+        else {
+            let obj = {
+                userid: Math.floor(Math.random() * 10000),
+                name: name,
+            }
+
+            if (localStorage.getItem('user') === null || localStorage.getItem('user') === undefined) {
+                data.push(obj);
+                localStorage.setItem('user', JSON.stringify(data));
+            }
+            else {
+                let val = JSON.parse(localStorage.getItem('user'));
+                val.push(obj);
+                localStorage.setItem('user', JSON.stringify(val));
+            }
+
+
+            alert("User successfully created...");
+            viewdata();
+        }
+
+        document.getElementById('name').value = "";
+        viewdata()
+    }
+
+    const deleteData = (id) => {
+        let data = JSON.parse(localStorage.getItem('user'));
+
+        let ans = data.filter((val) => {
+            return val.userid != id
+        })
+        localStorage.setItem('user', JSON.stringify(ans));
+
+        alert("User successfully deleted");
+        viewdata();
+    }
+
+    const editData = (id) => {
+        document.getElementById('addbtn').style.display = "none";
+        document.getElementById('editbtn').style.display = "block";
+
+        let val = JSON.parse(localStorage.getItem('user'));
+
+        let ans = val.filter((v) => {
+            return v.userid == id;
+        })
+
+
+        document.getElementById('name').value = ans[0].name;
+        document.getElementById('editid').value = ans[0].userid;
+    }
+
+    const remove = () => {
+        localStorage.removeItem('user');
+        viewdata();
+    }
+
+</script>
